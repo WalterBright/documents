@@ -13,7 +13,6 @@
 This proposal is for supporting bitfields in C the same way they are supported in C.
 
 
-
 ## Contents
 
 * [Rationale](#rationale)
