@@ -5,7 +5,7 @@
 | DIP:            | (number/id -- assigned by DIP Manager)                          |
 | Review Count:   | 0 (edited by DIP Manager)                                       |
 | Author:         | Walter Bright walter@walterbright.com                           |
-| Implementation: | (links to implementation PR if any)                             |
+| Implementation: | https://github.com/dlang/dmd/pull/16314                         |
 | Status:         | Will be set by the DIP manager (e.g. "Approved" or "Rejected")  |
 
 ## Abstract
