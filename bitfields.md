@@ -10,7 +10,7 @@
 
 ## Abstract
 
-This proposal is for supporting bitfields in C the same way they are supported in C.
+This proposal is for supporting bitfields in D the same way they are supported in C.
 
 
 ## Contents
@@ -169,10 +169,11 @@ The specific layout of bitfields in C is implementation-defined, and varies betw
 the Digital Mars, Microsoft, and gdc/ldc compilers. gdc/lcd are lumped together because
 they produce identical results on the same platform.
 
-In practice, however, if one sticks to `int` and `uint` bitfields, they are laid out the same.
+In practice, however, if one sticks to `int`, `uint`, `long` and `ulong` bitfields, they are laid out the same.
 
 The layout of the other fields of a struct is implementation-defined in C, and it does
-vary between the Digital Mars, Microsoft, and gdc/ldc compilers.
+vary between the Digital Mars, Microsoft, and gdc/ldc compilers. The endianess is also
+implementation defined.
 
 The size of an `int` is also implementation-defined according to the C Standard. But
 in practice, it is the same across 32 and 64 bit machines.
