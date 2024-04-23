@@ -10,7 +10,7 @@
 
 ## Abstract
 
-Enable local variables do be declared as `ref`.
+Enable local variables to be declared as `ref`.
 
 
 ## Contents
@@ -79,6 +79,39 @@ ref int dark(ref int x, int i)
         return y;  // nope
 }
 ```
+
+An example showing the utility of `ref`. This is from the DMD code generator:
+```
+void pop87(int line, const(char)* file)
+{
+    if (NDPP)
+        printf("pop87(%s(%d): stackused=%d)\n", file, line, global87.stackused);
+
+    --global87.stackused;
+    assert(global87.stackused >= 0);
+    foreach (i; 0 .. global87.stack.length - 1)
+        global87.stack[i] = global87.stack[i + 1];
+    // end of stack is nothing
+    global87.stack[$ - 1] = NDP();
+}
+```
+becomes:
+```
+void pop87(int line, const(char)* file)
+{
+    ref g = global87;
+    if (NDPP)
+        printf("pop87(%s(%d): stackused=%d)\n", file, line, g.stackused);
+
+    --g.stackused;
+    assert(g.stackused >= 0);
+    foreach (i; 0 .. g.stack.length - 1)
+        g.stack[i] = g.stack[i + 1];
+    // end of stack is nothing
+    g.stack[$ - 1] = NDP();
+}
+```
+which reduces the complexity of the code, as long-winded global names get a shorthand.
 
 
 C++ rvalue references are not part of this proposal.

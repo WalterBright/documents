@@ -126,18 +126,29 @@ s.flags = 4;
 It's hard to imagine a more concise, direct to-the-point syntax, with no extraneous
 symbols. This syntax encourages experimentation with them.
 
+### Usage
+
+The main purposes of bitfields are:
+
+1. Reduction in memory consumption by packing data.
+2. Interoperation with C bitfields, as a program can consist of both C and D code.
+3. Conformance with an externally imposed layout, such as bits in a hardware register
+or bitfields in an externally specified data structure.
+
 ### Experience
 
 There is over 40 years experience with bitfields in C, and around 35 years in
-C++. I've seen plentiful use of it, and have not seen any "do not use bitfields" programming
-guidelines.
+C++. I've seen plentiful use of it, and have not seen much "do not use bitfields" programming
+guidelines. The most cogent thread about it is by Linux Torvalds:
+https://yarchive.net/comp/linux/bitfields.html
+where he points out the problems with Usage No. 1 listed above.
 
 
 ### ImportC
 
 Since bitfields are supported in ImportC, C bitfields could be supported by importing a C
 file with the bitfield declarations. While this will work, it's awkward and has a workaround
-aurora about it.
+aura about it.
 
 ### Cross-Compiling, Bootstrapping
 
@@ -158,8 +169,13 @@ however, they are not compatible with C bitfields.
 
 Another implementation is used in dmd:
 https://github.com/dlang/dmd/blob/master/compiler/src/dmd/common/bitfields.d
-which is quite clever, but only works for single bit flags.
+which only works for single bit flags.
 
+Bit Fields in Zig:
+https://andrewkelley.me/post/a-better-way-to-implement-bit-fields.html
+
+Bit Fields in C3:
+https://c3lang.github.io/c3docs/types/#bitstructs
 
 ## Description
 
@@ -187,8 +203,10 @@ incompatible with C bitfields.
 
 The solution is to pick the right implementation for the desired purpose:
 
-1. use builtin bitfields for portability matching the associated C compiler
-2. use std.bitmap.bitfields for cross-platform binary compatibility
+1. use builtin bitfields for reducing memory consumption
+1. use builtin bitfields for interoperability with the associated C compiler
+2. use std.bitmap.bitfields for compatibility with externally imposed data layouts
+or hardware registers
 
 
 ### Symbolic Debug Info
@@ -197,6 +215,8 @@ Symbolic C code debuggers are ubiquitous, and they support symbolic debugging of
 bitfields. Without semantic knowledge of what is
 a bitfield, the compiler cannot generate symbolic debug information for them,
 and the user experience with them is degraded.
+By being compatible with the associated C compiler, existing symbolic debuggers will work
+smoothly with D bitfields.
 
 
 ### Reference to Bitfield
@@ -242,7 +262,8 @@ produces:
 ["a", "_b_c_d_bf", "b", "b_min", "b_max", "c", "c_min", "c_max", "d", "d_min", "d_max"]
 ```
 
-There isn't a specific trait for "is this a bitfield".
+There isn't a specific trait for "is this a bitfield". However, a bitfield can be detected
+by taking the address of it being a compile time error.
 
 #### .max and .min
 
@@ -259,8 +280,18 @@ correctly produces:
 ```
 
 which, along with testing to see if the address of a field can be taken,
-enables introspection of a bit field.
+enables discovery of a bitfield.
 
+The values of .max or .min enable determining the number of bits in a bitfield.
+
+#### .offsetof and .alignof
+
+When applied to a bitfield produces values for the field type that encloses the bitfield.
+
+#### Bit Offset of bitfield
+
+The bit offset can be introspected by summing the number of bits in each preceding bitfield
+that has the same value of `.offsetof`.
 
 ### Shared Bitfields
 
@@ -268,23 +299,47 @@ All bitfield schemes share a warning about use by multiple threads - updating on
 field may alter its neighbors in a race condition. The entire collection of
 fields must be locked to access a bitfield in a shared environment.
 
+Atomic operations will not work on bitfields, as there are no CPU instructions
+capable of doing it.
 
 ### typeof
 
 The type of a bitfield is the type that precedes the bitfield declaration.
 
+### shared, const, __gshared, static
+
+Are not allowed for bitfields.
 
 ## Breaking Changes and Deprecations
 
 This is an additive feature and does not break any existing code.
 Its use is entirely optional.
 
+## Controversy
+
+Most of the objections revolve around discomfort with the layout being implementation-defined
+by the associated C compiler. Many methods were proposed to deal with this. The only time
+the layout matters is with Usage No. 3, where the layout is imposed externally. For Usage Nos.
+1 and 2, the particular layout does not matter. When it does matter, many alternatives are
+available:
+
+1. Use https://dlang.org/phobos/std_bitmanip.html#bitfields
+2. If one sticks with one field type (such as `int`), then the layout is predictable in practice,
+although not in specification
+3. Use custom functions to encode/decode fields
+4. A bit of testing will show what a particular layout is, after which it will be reliable
+
+The alternatives are easy enough, and Usage No. 3 is unusual enough, that the extra language complexity
+to support multiple layouts is not worth it. Note that the author would use a lot more bitfields
+if they were in the language.
 
 ## Reference
 
 Documentation pull request:
 https://github.com/dlang/dlang.org/pull/3190
 
+Newsgroup discussion:
+https://www.digitalmars.com/d/archives/digitalmars/dip/development/DIP_add_Bit_Fields_2.html
 
 ## Copyright & License
 Copyright (c) 2024 by the D Language Foundation
