@@ -47,12 +47,17 @@ local variables should also benefit from being declared as `ref`. Often I've run
 across cases where declaring a local as `ref` rather than a pointer would have
 made the code nicer and safer.
 
+This DIP is for declaring local variables as `ref`. Not globals, statics, externs,
+__gshareds or fields.
+
 
 ## Prior Work
 
 C++ allows variables to be declared as a reference rather than pointer. The same
 goes for ref struct field declarations, although that is not part of this proposal.
 
+References in C#:
+https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/declarations#reference-variables
 
 ## Description
 
@@ -60,17 +65,22 @@ goes for ref struct field declarations, although that is not part of this propos
 in the semantic pass.
 https://dlang.org/spec/declaration.html#VarDeclarations
 This proposal will "turn it on" so to speak, and its behavior will be the same as
-the current behavior for foreach ref parameters.
+the current behavior for assigning to function ref parameters.
 
 Returning a ref variable from a function that returns a ref is not allowed. I.e.
 a ref cannot be assigned to a ref with a scope that exceeds the scope of the source.
 
 
 ```
-ref int dark(ref int x, int i)
+ref int dark(ref int x, int i, int* q)
 {
+    ref m = *q;    // m refers to whatever q points to
+
     ref j = i;     // j now points to i
     j = 3;         // now i is 3 as well
+
+    auto k = j;    // k is an int with value 3
+    auto p = &j;   // p is a pointer to i
 
     ref int y = x; // ok
     if (i)
