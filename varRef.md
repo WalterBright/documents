@@ -133,6 +133,9 @@ No breaking changes are anticipated.
 
 ## Reference
 
+Implementation:
+https://github.com/dlang/dmd/pull/16428
+
 References in D:
 https://dlang.org/spec/declaration.html#ref-storage
 
