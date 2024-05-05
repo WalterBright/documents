@@ -352,6 +352,9 @@ if they were in the language.
 Documentation pull request:
 https://github.com/dlang/dlang.org/pull/3190
 
+PR to add instrospection abilities:
+https://github.com/dlang/dmd/pull/16444
+
 Newsgroup discussion:
 https://www.digitalmars.com/d/archives/digitalmars/dip/development/DIP_add_Bit_Fields_2.html
 
