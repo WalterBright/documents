@@ -284,14 +284,21 @@ enables discovery of a bitfield.
 
 The values of .max or .min enable determining the number of bits in a bitfield.
 
+#### Trait `isBitField`
+
+Using `__traits(isBitField, symbol)` can be used to distinguish a bitfield from a regular field.
+
 #### .offsetof and .alignof
 
 When applied to a bitfield produces values for the field type that encloses the bitfield.
 
-#### Bit Offset of bitfield
+#### Bit Offset of Bitfield
 
-The bit offset can be introspected by summing the number of bits in each preceding bitfield
-that has the same value of `.offsetof`.
+The bit offset can be determined with the property `.bitoffsetof`.
+
+#### Width of Bitfield
+
+The number of bits in a bitfield can be determined with the property `.bitwidth`.
 
 ### Shared Bitfields
 
@@ -302,18 +309,25 @@ fields must be locked to access a bitfield in a shared environment.
 Atomic operations will not work on bitfields, as there are no CPU instructions
 capable of doing it.
 
-### typeof
+### `typeof`
 
 The type of a bitfield is the type that precedes the bitfield declaration.
 
-### shared, const, __gshared, static
+### `.sizeof`
+
+The value returned by .sizeof is the same as `typeof(bitfield).sizeof`.
+
+### `shared`, `const`, `immutable`, `__gshared`, `static`, `extern`
 
 Are not allowed for bitfields.
 
 ## Breaking Changes and Deprecations
 
-This is an additive feature and does not break any existing code.
-Its use is entirely optional.
+A bitfield can be detected by not being able to take the address of it.
+
+Introspection code that relies on taking the address of or reference to fields will break
+with bitfields. Introspection code that relies on `.offsetof` and `.sizeof` will see bitfields
+as a union of the bitfields with the same `.offsetof`, `.sizeof` and `typeof`.
 
 ## Controversy
 
