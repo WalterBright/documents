@@ -45,12 +45,11 @@ builds.
 
 The unsafe problems with printf are:
 
-1. mismatch of arguments with format specifiers. This is mitigated by the compiler's
-checks for those mismatches
+1. mismatch of arguments with format specifiers. These are detected by `pragma(printf)`.
 2. the %s takes as an argument a pointer to a string. While the string is only read,
 the pointer still walks the string in an unbounded manner
 3. the %.*s parameter takes an argument of the form (int,char*). The int is the number
-of characters to print, but a value <=0 has unsafe behavior
+of characters to print, but a value < 0 has unsafe behavior
 4. a format string that is not a literal and the compiler cannot check it
 
 These are fixable problems, or can be constrained so they are memory safe.
@@ -73,8 +72,8 @@ specifier to be rewritten to match the argument type, if the format specifier
 is `%s`.
 
 If the format specifier is `%s` and the corresponding argument is a D array of char
-or wchar_t, the format will
-be replace with `%.*s` (or `%.*ls`) and the argument will be replaced with two arguments of
+or wchar_t, the specifier will
+be replaced with `%.*s` (or `%.*ls`) and the argument will be replaced with two arguments of
 the form:
 
 ```
