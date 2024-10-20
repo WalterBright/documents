@@ -23,9 +23,9 @@ struct S
 {
     P payload;
 
-    this(ref S);      // copy constructor
-    void opAssign(S); // copy assignment
-    ~this();          // destructor
+    this(ref S);           // copy constructor
+    ref S opAssign(ref S); // copy assignment
+    ~this();               // destructor
 }
 ...
 S t = s; // invoke copy constructor
