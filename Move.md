@@ -101,10 +101,10 @@ struct S
 {
     S opMove()
     {
-        S s;                                              (1)
-        s.payload.opMoveAssign(payload);                          (2)
+        S s;                                                  (1)
+        s.payload.opMoveAssign(payload);                      (2)
         memcpy(&this, __traits(initSymbol, S).ptr, S.sizeof); (3)
-        return s;                                                 (4)
+        return s;                                             (4)
     }
 }
 ```
