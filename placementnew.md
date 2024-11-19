@@ -53,6 +53,9 @@ awkward to use `emplace`.
 
 ## Prior Work
 
+The old "class allocators":
+https://dlang.org/deprecate.html#Class%20allocators%20and%20deallocators
+
 Druntime emplace:
 https://dlang.org/phobos/core_lifetime.html
 
