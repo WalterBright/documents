@@ -4,8 +4,8 @@
 |-----------------|-----------------------------------------------------------------|
 | DIP:            | (number/id -- assigned by DIP Manager)                          |
 | Review Count:   | 0 (edited by DIP Manager)                                       |
-| Author:         | Walter Bright walter@walterbright.com                           |
-| Implementation: | (links to implementation PR if any)                             |
+| Author:         | Walter Bright walter@walterbright.com inspired by Manu Evans    |
+| Implementation: | https://github.com/dlang/dmd/pull/17057                         |
 | Status:         | Will be set by the DIP manager (e.g. "Approved" or "Rejected")  |
 
 ## Abstract
@@ -45,8 +45,7 @@ S s = t;
 ```
 3. The compiler doesn't know what emplace does, and so cannot make use of
 information like lifetimes.
-4. The CTFE engine also doesn't know what emplace does, and expands the templates
-to simulate it, making simple operations slow and memory intensive
+4. `emplace` generates template bloat.
 5. If one desires to use classes without the GC, such as in BetterC, it's just
 awkward to use `emplace`.
 
@@ -62,6 +61,9 @@ https://en.cppreference.com/w/cpp/language/new
 
 
 ## Description
+
+Placement new explicitly provides the storage for NewExpression to initialize with the newly created
+value, rather than using the GC.
 
 The current grammar for NewExp is:
 
@@ -90,13 +92,68 @@ PlacementExpression:
     ( AssignExpression )
 ```
 
-If `Type` is a class, the `PlacementExpression` must produce a value of type `void[]`
-and the length of the array must be of sufficient size to hold the class object.
-The size of the memory object of `class Type` can be retrieved with the expression
-`__traits(initSymbol, Type).length`.
+If `Type` is a basic type or a struct, the `PlacementExpression` must produce an lvalue that has a size larger or
+equal to `sizeof(Type)`.
 
-Otherwise, the `PlacementExpression` must produce a value of type `Type*`. This must point to a memory
-object into which will be placed the new'd object.
+```
+struct S
+{
+    float d;
+    int i;
+    char c;
+}
+
+void main()
+{
+    S s;
+    S* p = new (s) S();
+    assert(p.i == 0 && p.c == 0xFF);
+}
+```
+
+If `Type` is a class, the `PlacementExpression` must produce a value of type that is of a sufficient
+size to hold the class object such as `void[__traits(classInstanceSize, Type)]`.
+
+```
+class C
+{
+    int i, j = 4;
+}
+
+void main()
+{
+    void[__traits(classInstanceSize, C)] k;
+    C c = new(k) C;
+    assert(c.j == 4);
+    assert(cast(void*)c == cast(void*)k.ptr);
+}
+```
+
+Placement `new` cannot be used for associative arrays, as associative arrays are designed to be
+on the GC heap. The size of the associative array allocated is determined by the runtime library,
+so cannot be set by the user.
+
+The use of placement new is not allowed in `@safe` code.
+
+To allocate storage with an allocator function such as `malloc()`, a simple template can
+be used:
+
+```
+import core.stdc.stdlib;
+
+struct S { int i = 1, j = 4, k = 9; }
+
+ref void[T.sizeof] mallocate(T)() {
+    return malloc(T.sizeof)[0 .. T.sizeof];
+}
+
+void main() {
+    S* ps = new(mallocate!S()) S;
+    assert(ps.i == 1);
+    assert(ps.j == 4);
+    assert(ps.k == 9);
+}
+```
 
 ## Breaking Changes and Deprecations
 
