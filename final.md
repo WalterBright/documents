@@ -31,10 +31,6 @@ With modern compiler optimizers, SSA does not improve code generation.
 This makes code easier to understand, especially
 complicated code, as it restricts the semantics of the assignment.
 
-A short motivation about the importance and benefits of the proposed change.  An existing,
-well-known issue or a use case for an existing projects can greatly increase the
-chances of the DIP being understood and carefully evaluated.
-
 ## Prior Work
 
 [Single-Assignment C](https://en.wikipedia.org/wiki/SAC_programming_language)
