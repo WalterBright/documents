@@ -118,6 +118,8 @@ There are no breaking changes nor deprecations.
 digitalmars.dip.ideas forum thread
 https://www.digitalmars.com/d/archives/digitalmars/dip/ideas/Single_Assignment_1765.html
 
+digitalmars.dip.development forum thread
+https://www.digitalmars.com/d/archives/digitalmars/dip/development/First_Draft_Static_Single_Assignment_656.html
 
 ## Copyright & License
 Copyright (c) 2025 by the D Language Foundation
