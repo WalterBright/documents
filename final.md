@@ -43,11 +43,15 @@ complicated code, as it restricts the semantics of the assignment.
 in the grammar for storage classes, https://dlang.org/spec/declaration.html#StorageClass,
 but is currently diagnosed as an error when applied to variable declarations.
 
+`final` means that the variable's contents, once initialized by the declaration,
+can no longer be altered unless stepping outside of D semantics in `@system` code.
+This requirement inevitably drives behaviors, as follows:
+
 ```d
 final int f = 3;
 f = 4; // error, f is final
 int* p = &f; // error, cannot make mutable reference to final variable
-const int* pc = &f; // ok
+const int* pc = &f; // ok, const will not allow alteration
 ```
 
 `final` is not transitive. It does not work like `const`; another term for
@@ -56,7 +60,7 @@ it is "head const":
 ```d
 int i;
 final int* pi = &i;
-*pi = 3; // ok
+*pi = 3; // ok, as the value of pi is not altered
 
 const int c = 4;
 final int* pc = &c; // error, c is const
@@ -82,6 +86,28 @@ final int i = 3;
 ref int r = i; // error cannot make mutable reference to final `i`
 const ref int cr = i; // ok
 ```
+
+`final` does not affect the type:
+
+```d
+int i;
+final pi = &i; // typeof(pi) is int*
+```
+
+`final` has no effect on a `ref` declaration, as `ref` cannot be rebound.
+
+`final` can be applied to struct and class fields.
+
+`final` can be applied to function parameters, but overloading is not affected.
+Hence, it has no effect on name mangling.
+
+`final` cannot be applied to template parameters.
+
+`final` applied to a declaration of a variable of `class` type means the non-static fields of
+the class can be modified, but the variable cannot be rebound to another class instance.
+
+`final` applied to a declaration of a variable of `struct` type means the non-static fields of the
+struct are implicitly final, and cannot be modified after initialization.
 
 ## Breaking Changes and Deprecations
 
